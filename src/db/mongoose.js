@@ -8,8 +8,10 @@ const User = mongoose.model('Users', User_Sh);
 const Task = mongoose.model('Tasks', Task_Sh); 
 
 
-const me = new User({name: 'Mark', email:"IamMark@gmail.com", password: "12Password3", age:18});
+const me = new User({name: 'Faqu', email:"kundo@gmail.com", password: "HolasTest", age:26});
 const task = new Task({description: "Comprar mandarinas"})
 
-me.save().then(data => console.log(data))
-           .catch(err => console.log("Error " + err))
+
+
+//me.save().then(data => console.log(data))
+         //.catch(err => console.log("Error " + err))
