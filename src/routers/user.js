@@ -47,17 +47,20 @@ router.patch("/user/:id", async(req, res)=>{
     }
 
     try {
-        const user = await User.findByIdAndUpdate(_id, {
-            name: req.body.name, 
-            email: req.body.email, 
-            password: req.body.password
-        }, {new: true, runValidators: true}); 
+        const userFound = await User.findById(_id); 
+        console.log(userFound)
+        if(!userFound){
+            console.log("Pedorooo")
+            return res.status(404).send(); 
+        }
 
-        if(!user){
-            res.status(404).send()
-        };
+        update.forEach((key)=>{
+            userFound[key] = req.body[key]; 
+        })
 
-        res.send(user); 
+        await userFound.save();  
+        res.send(userFound); 
+
     } catch (e) {
         res.status(400).send(e); 
     }

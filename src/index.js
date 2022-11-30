@@ -1,6 +1,6 @@
 const { response } = require('express');
 const express = require('express');
-const mongoose = require('./db/mongoose'); 
+require('./db/mongoose'); 
 const userRoute = require('./routers/user')
 const taskRoute = require('./routers/task')
 

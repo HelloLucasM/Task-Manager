@@ -1,5 +1,6 @@
 const { Schema } = require("mongoose");
 const validator = require("validator"); 
+const bcrypt = require('bcryptjs'); 
 
 const User = new Schema({
     name:{
@@ -46,19 +47,12 @@ const User = new Schema({
     }
 }); 
 
-const Task = new Schema({
-    description:{ 
-        type: String,
-        trim: true,
-        required: true
-    }, 
-    completed:{
-        type: Boolean,
-        default: false
+User.pre('save', async function(next){
+    if(this.isModified("password")){
+        this.password = await bcrypt.hash(this.password, 8);
     }
-});
+    next();
+})
 
-module.exports = {
-    User_Sh: User, 
-    Task_Sh: Task
-}   
+module.exports = User;
+ 
