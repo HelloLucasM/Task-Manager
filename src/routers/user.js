@@ -2,7 +2,7 @@ const express = require("express")
 const router = new express.Router(); 
 const {isValidOperation} = require('../utils/utilities')
 
-const User = require('../models/user');
+const User = require('../db/models/user');
 
 router.get("/user", async(req, res)=>{
     try {
@@ -27,14 +27,29 @@ router.get("/user/:id", async(req, res)=>{
 })
 
 router.post("/user", async(req, res)=>{
-   
+    const newUser = new User(req.body); 
+
    try {
-       const newUser = new User(req.body); 
        await newUser.save(); 
-       res.status(201).send(newUser); 
+
+       const token = await newUser.generateAuthToken(); 
+
+       res.status(201).send({newUser, token}); 
    } catch (e) {
        res.status(400).send(e); 
    }
+})
+
+router.post("/users/login", async(req, res)=>{
+    try {
+        
+        const user = await User.findByCredentials(req.body.email, req.body.password);
+        const token = await user.generateAuthToken(); 
+        res.send({user, token}); 
+
+    } catch (e) {
+        res.status(400).send(e); 
+    }
 })
 
 router.patch("/user/:id", async(req, res)=>{
@@ -48,9 +63,7 @@ router.patch("/user/:id", async(req, res)=>{
 
     try {
         const userFound = await User.findById(_id); 
-        console.log(userFound)
         if(!userFound){
-            console.log("Pedorooo")
             return res.status(404).send(); 
         }
 
@@ -65,7 +78,6 @@ router.patch("/user/:id", async(req, res)=>{
         res.status(400).send(e); 
     }
 })
-
 
 router.delete("/user/:id", async(req, res) => {
     try {

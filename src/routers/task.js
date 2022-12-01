@@ -3,7 +3,7 @@ const router = new express.Router();
 const {isValidOperation} = require('../utils/utilities')
 
 
-const Task = require('../models/task');
+const Task = require('../db/models/task');
 
 
 router.get("/task", async(req, res)=>{

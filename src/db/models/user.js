@@ -1,8 +1,10 @@
-const { Schema } = require("mongoose");
+const {Schema, mongoose} = require('mongoose'); 
 const validator = require("validator"); 
-const bcrypt = require('bcryptjs'); 
+const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken"); 
+ 
 
-const User = new Schema({
+const User_Sh = new Schema({
     name:{
         type: String,
         required: true,
@@ -13,6 +15,7 @@ const User = new Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
         trim: true,
         lowercase: true,
         validate(val){
@@ -44,15 +47,48 @@ const User = new Schema({
                 throw new Error("Number should be positive."); 
             }
         }
-    }
+    },
+    
+    tokens:[{
+        token:{
+            type:String, 
+            required: true
+        }
+    }]
+
 }); 
 
-User.pre('save', async function(next){
+User_Sh.statics.findByCredentials = async(email, password)=>{
+
+    const user = await User.findOne({email}); 
+    if(!user){throw new Error("Login unabled!")}
+
+    const isValid = await bcrypt.compare(password, user.password); 
+
+    if(!isValid){throw new Error("Login unabled!")}
+
+    return user; 
+};
+
+
+User_Sh.methods.generateAuthToken = async function(){
+    const user = this; 
+    const token = jwt.sign({_id: user._id.toString()}, 'thisismynewcourse')
+    user.tokens = user.tokens.concat({token}); 
+    user.save(); 
+    return token; 
+}
+
+//Encripting password before save user document. 
+User_Sh.pre('save', async function(next){
     if(this.isModified("password")){
         this.password = await bcrypt.hash(this.password, 8);
     }
     next();
 })
 
-module.exports = User;
- 
+
+const User = mongoose.model('Users', User_Sh);
+
+
+module.exports = User; 
