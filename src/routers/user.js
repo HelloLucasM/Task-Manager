@@ -3,8 +3,9 @@ const router = new express.Router();
 const {isValidOperation} = require('../utils/utilities')
 
 const User = require('../db/models/user');
+const auth = require('../middlewares/auth');
 
-router.get("/user", async(req, res)=>{
+router.get("/user", auth, async(req, res)=>{
     try {
         const users = await User.find({}); 
         res.send(users);
