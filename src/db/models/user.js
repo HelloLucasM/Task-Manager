@@ -69,6 +69,16 @@ User_Sh.statics.findByCredentials = async(email, password)=>{
     return user; 
 };
 
+User_Sh.methods.toJSON = function(){
+    const user = this; 
+    const userObj = user.toObject(); 
+
+    delete userObj.password; 
+    delete userObj.tokens; 
+
+    return userObj; 
+}
+
 
 User_Sh.methods.generateAuthToken = async function(){
     const user = this; 
