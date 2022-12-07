@@ -3,6 +3,8 @@ const validator = require("validator");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken"); 
 
+const Task = require('./task');
+
 const User_Sh = new Schema({
     name:{
         type: String,
@@ -57,6 +59,12 @@ const User_Sh = new Schema({
 
 }); 
 
+User_Sh.virtual('tasks', {
+    ref:'Tasks',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
 User_Sh.statics.findByCredentials = async(email, password)=>{
 
     const user = await User.findOne({email}); 
@@ -93,6 +101,14 @@ User_Sh.pre('save', async function(next){
     if(this.isModified("password")){
         this.password = await bcrypt.hash(this.password, 8);
     }
+    next();
+})
+
+//Remove tasks when user is deleted
+User_Sh.pre('remove', async function(next){
+    await Task.deleteMany({
+        owner: this._id
+    })
     next();
 })
 
