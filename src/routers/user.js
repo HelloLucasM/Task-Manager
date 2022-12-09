@@ -5,6 +5,9 @@ const {isValidOperation} = require('../utils/utilities')
 const User = require('../db/models/user');
 const auth = require('../middlewares/auth');
 
+const multer = require('multer');
+
+
 router.post("/user", async(req, res)=>{
     const newUser = new User(req.body); 
 
@@ -102,6 +105,28 @@ router.delete("/users/me", auth, async(req, res) => {
     try {
         await req.user.remove();
         res.send(req.user)
+    } catch (e) {
+        res.status(400).send(e)
+    }
+})
+
+const upload = multer({
+    dest: 'images',
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req, file, cb){
+        if(!file.originalname.match(/\.(png|jpg)$/)){
+           return cb(new Error('Please upload an image'))
+        }
+
+        cb(undefined, true)
+    }
+})
+router.post("/users/me/avatar", auth, upload.single('avatar'), async(req, res) => {
+    try {
+        
+        res.send(); 
     } catch (e) {
         res.status(400).send(e)
     }
